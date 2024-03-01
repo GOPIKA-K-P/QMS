@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  QMS
+
+  Sample SAM Template for QMS
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+
+    Tracing: Active
+    # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
+    LoggingConfig:
+      LogFormat: JSON
+  Api:
+    TracingEnabled: true
+Resources:
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: develop
+      CorsConfiguration:
+        AllowMethods:
+          - '*'
+        AllowHeaders:
+          - '*'
+        AllowOrigins:
+          - '*'
+
+  Getfai:
+      Type: AWS::Serverless::Function
+      Properties:
+        CodeUri: service/backend_apis/fai
+        Handler: lambda_function.lambda_handler
+        Runtime: python3.10
+        Architectures:
+        - x86_64
+        Role: arn:aws:iam::483275777129:role/backend_devops
+        FunctionName: get_fai
+        MemorySize: 128
+        Events:
+          GetOEE:
+            Type: HttpApi
+            Properties:
+              Path: /v1.0/check
+              Method: GET
+              ApiId:
+                Ref: HttpApi 
